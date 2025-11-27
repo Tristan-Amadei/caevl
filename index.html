@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <!-- Primary Meta Tags -->
+  <!-- TODO: Replace with your paper title and author names -->
+  <meta name="title" content="Beyond Paired Data: Self-Supervised UAV Geo-Localization from Reference Imagery Alone">
+  <!-- TODO: Write a compelling 150-160 character description of your research -->
+  <meta name="description" content="CAEVL is a robust cross-altitude edge-based visual localization method for GNSS-denied UAVs, enabling accurate UAV-to-satellite matching under challenging visual conditions.">
+  <!-- TODO: Add 5-10 relevant keywords for your research area -->
+  <meta name="keywords" content="visual geolocalization,GNSS-denied,visual place recognition,self-supervised learning,image retrieval">
+  <!-- TODO: List all authors -->
+  <meta name="author" content="Tristan Amadei, Enric Meinhardt-Llopis, Benedicte Bascle, Corentin Abgrall, Gabriele Facciolo">
+  <meta name="robots" content="index, follow">
+  <meta name="language" content="English">
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="article">
+  <!-- TODO: Replace with your institution or lab name -->
+  <meta property="og:site_name" content="Centre Borelli, ENS Paris-Saclay">
+  <!-- TODO: Same as paper title above -->
+  <meta property="og:title" content="Beyond Paired Data: Self-Supervised UAV Geo-Localization from Reference Imagery Alone">
+  <!-- TODO: Same as description above -->
+  <meta property="og:description" content="CAEVL is a robust cross-altitude edge-based visual localization method for GNSS-denied UAVs, enabling accurate UAV-to-satellite matching under challenging visual conditions.">
+  <!-- TODO: Replace with your actual website URL -->
+  <meta property="og:url" content="https://tristan-amadei.github.io/caevl-pages">
+  <!-- TODO: Create a 1200x630px preview image and update path -->
+  <meta property="og:image" content="static/images/caevl_overview.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Model overview of CAEVL">
+  <meta property="article:published_time" content="2024-01-01T00:00:00.000Z">
+  <meta property="article:author" content="Tristan Amadei">
+  <meta property="article:section" content="Research">
+  <meta property="article:tag" content="GNSS-denied">
+  <meta property="article:tag" content="image retrieval">
+
+  <!-- Academic/Research Specific -->
+  <meta name="citation_title" content="Beyond Paired Data: Self-Supervised UAV Geo-Localization from Reference Imagery Alone">
+  <meta name="citation_author" content="AMADEI, Tristan">
+  <meta name="citation_author" content="MEINHARDT-LLOPIS, Enric">
+  <meta name="citation_author" content="BASCLE, Benedicte">
+  <meta name="citation_author" content="ABGRALL, Corentin">
+  <meta name="citation_author" content="FACCIOLO, Gabriele">
+  <meta name="citation_publication_date" content="2026">
+  <meta name="citation_conference_title" content="WACV">
+  <meta name="citation_pdf_url" content="https://tristan-amadei.github.io/caevl-pages/static/pdfs/paper.pdf">
+  
+  <!-- Additional SEO -->
+  <meta name="theme-color" content="#2563eb">
+  <meta name="msapplication-TileColor" content="#2563eb">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  
+  <!-- Preconnect for performance -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://ajax.googleapis.com">
+  <link rel="preconnect" href="https://documentcloud.adobe.com">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+
+
+  <!-- TODO: Replace with your paper title and authors -->
+  <title>Beyond Paired Data: Self-Supervised UAV Geo-Localization from Reference Imagery Alone - Amadei, Tristan and Meinhardt-Llopis, Enric and Bascle, Benedicte and Abgrall, Corentin and Facciolo, Gabriele | Academic Research</title>
+  
+  <!-- Favicon and App Icons -->
+  <link rel="icon" type="image/x-icon" href="static/images/favicon.ico">
+  <link rel="apple-touch-icon" href="static/images/favicon.ico">
+  
+  <!-- Critical CSS - Load synchronously -->
+  <link rel="stylesheet" href="static/css/bulma.min.css">
+  <link rel="stylesheet" href="static/css/index.css">
+  
+  <!-- Non-critical CSS - Load asynchronously -->
+  <link rel="preload" href="static/css/bulma-carousel.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="static/css/bulma-slider.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="static/css/fontawesome.all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  
+  <!-- Fallback for browsers that don't support preload -->
+  <noscript>
+    <link rel="stylesheet" href="static/css/bulma-carousel.min.css">
+    <link rel="stylesheet" href="static/css/bulma-slider.min.css">
+    <link rel="stylesheet" href="static/css/fontawesome.all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  </noscript>
+  
+  <!-- Fonts - Optimized loading -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Defer non-critical JavaScript -->
+  <script defer src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="https://documentcloud.adobe.com/view-sdk/main.js"></script>
+  <script defer src="static/js/fontawesome.all.min.js"></script>
+  <script defer src="static/js/bulma-carousel.min.js"></script>
+  <script defer src="static/js/bulma-slider.min.js"></script>
+  <script defer src="static/js/index.js"></script>
+  
+  <!-- Structured Data for Academic Papers -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "ScholarlyArticle",
+    "headline": "Beyond Paired Data: Self-Supervised UAV Geo-Localization from Reference Imagery Alone",
+    "description": "CAEVL is a robust cross-altitude edge-based visual localization method for GNSS-denied UAVs, enabling accurate UAV-to-satellite matching under challenging visual conditions",
+    "author": [
+      {
+        "@type": "Person",
+        "name": "Tristan Amadei",
+        "affiliation": {
+          "@type": "Organization",
+          "name": "Centre Borelli, ENS Paris-Saclay"
+        }
+      },
+      {
+        "@type": "Person",
+        "name": "Enric Meinhardt-Llopis",
+        "affiliation": {
+          "@type": "Organization",
+          "name": "Centre Borelli, ENS Paris-Saclay"
+        }
+      },
+      {
+        "@type": "Person",
+        "name": "Benedicte Bascle",
+        "affiliation": {
+          "@type": "Organization",
+          "name": "Thales LAS, France"
+        }
+      },
+      {
+        "@type": "Person",
+        "name": "Corentin AAbgrall",
+        "affiliation": {
+          "@type": "Organization",
+          "name": "Thales LAS, France"
+        }
+      },
+      {
+        "@type": "Person",
+        "name": "Gabriele Facciolo",
+        "affiliation": {
+          "@type": "Organization",
+          "name": "Centre Borelli, ENS Paris-Saclay"
+        }
+      },
+    ],
+    "datePublished": "2026",
+    "publisher": {
+      "@type": "Organization",
+      "name": "WACV 2026"
+    },
+    "url": "https://tristan-amadei.github.io/caevl-pages",
+    "image": "static/images/model_overview_3steps.svg",
+    "keywords": ["visual geolocalization", "GNSS-denied", "visual place recognition", "self-supervised learning", "image retrieval"],
+    "abstract": "FULL_ABSTRACT_TEXT_HERE",
+    "citation": "BIBTEX_CITATION_HERE",
+    "isAccessibleForFree": true,
+    "license": "https://creativecommons.org/licenses/by/4.0/",
+    "mainEntity": {
+      "@type": "WebPage",
+      "@id": "https://tristan-amadei.github.io/caevl-pages"
+    },
+    "about": [
+      {
+        "@type": "Thing",
+        "name": "GNSS-denied UAV geolocalization"
+      },
+      {
+        "@type": "Thing", 
+        "name": "Image retrieval"
+      }
+    ]
+  }
+  </script>
+  
+  <!-- Website/Organization Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Centre Borelli, ENS Paris-Saclay",
+    "url": "https://centreborelli.ens-paris-saclay.fr/en",
+    "logo": "https://tristan-amadei.github.io/caevl-pages/static/images/favicon.ico",
+    "sameAs": [
+      "https://github.com/Tristan-Amadei"
+    ]
+  }
+  </script>
+</head>
+<body>
+
+
+  <!-- Scroll to Top Button -->
+  <button class="scroll-to-top" onclick="scrollToTop()" title="Scroll to top" aria-label="Scroll to top">
+    <i class="fas fa-chevron-up"></i>
+  </button>
+
+
+
+  <main id="main-content">
+  <section class="hero">
+    <div class="hero-body">
+      <div class="container is-max-desktop">
+        <div class="columns is-centered">
+          <div class="column has-text-centered">
+            <!-- TODO: Replace with your paper title -->
+            <h1 class="title is-1 publication-title">Beyond Paired Data: Self-Supervised UAV Geo-Localization from Reference Imagery Alone</h1>
+            <div class="is-size-5 publication-authors">
+              <!-- TODO: Replace with your paper authors and their personal links -->
+              <span class="author-block">
+                <a href="https://scholar.google.com/citations?user=Tm1Te-EAAAAJ&hl=fr" target="_blank">Tristan Amadei</a><sup>1,2</sup>,</span>
+                <span class="author-block">
+                  <a href="https://centreborelli.ens-paris-saclay.fr/fr/annuaire-des-personnes/enric-meinhardt-llopis" target="_blank">Enric Meinhardt-Llopis</a><sup>2</sup>,</span>
+                  <span class="author-block">
+                    <a href="https://scholar.google.com/citations?hl=fr&user=UvbTPqYAAAAJ" target="_blank">Benedicte Bascle</a><sup>1</sup>,</span>
+                  <span class="author-block">
+                    <a href="https://openreview.net/profile?id=~Corentin_ABGRALL1" target="_blank">Corentin Abgrall</a><sup>1</sup>,</span>
+                  <span class="author-block">
+                    <a href="https://scholar.google.com/citations?hl=fr&user=gAGVgXsAAAAJ" target="_blank">Gabriele Facciolo</a><sup>2</sup></span>
+                  </span>
+                  </div>
+
+                  <div class="is-size-5 publication-authors">
+                    <!-- TODO: Replace with your institution and conference/journal info -->
+                     <span class="author-block"><sup>1</sup>Thales LAS, France</span> <br>
+                      <span class="author-block"><sup>2</sup>Universite Paris-Saclay, ENS Paris-Saclay, CNRS, Centre Borelli, France</span> <br>
+                      <!-- The IEEE/CVF Winter Conference on Applications of Computer Vision 2026 -->
+                  </div>
+
+                  <div class="is-size-5" style="margin-top: 2rem; font-weight: 900; color:brown">
+                    WACV 2026
+                  </div>
+
+                  <div class="column has-text-centered">
+                    <div class="publication-links">
+                         <!-- TODO: Update with your arXiv paper ID - ->
+                      <span class="link-block">
+                        <a href="https://arxiv.org/pdf/<ARXIV PAPER ID>.pdf" target="_blank"
+                        class="external-link button is-normal is-rounded is-dark">
+                        <span class="icon">
+                          <i class="fas fa-file-pdf"></i>
+                        </span>
+                        <span>Paper</span>
+                      </a>
+                    </span> -->
+
+                  <span class="link-block">
+                    <a href="https://arxiv.org/abs/<ARXIV PAPER ID>" target="_blank"
+                    class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">
+                      <i class="ai ai-arxiv"></i>
+                    </span>
+                    <span>arXiv</span>
+                  </a>
+                </span>
+
+                    <!-- TODO: Add your supplementary material PDF or remove this section -->
+                    <span class="link-block">
+                      <a href="static/pdfs/supplementary_material.pdf" target="_blank"
+                      class="external-link button is-normal is-rounded is-dark">
+                      <span class="icon">
+                        <i class="fas fa-file-pdf"></i>
+                      </span>
+                      <span>Supplementary</span>
+                    </a>
+                  </span>
+
+                  <!-- TODO: Replace with your GitHub repository URL -->
+                  <span class="link-block">
+                    <a href="https://github.com/Tristan-Amadei/caevl" target="_blank"
+                    class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">
+                      <i class="fab fa-github"></i>
+                    </span>
+                    <span>Code</span>
+                  </a>
+                </span>
+
+                  <span class="link-block">
+                    <a href="https://TO_DATA" target="_blank"
+                    class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">
+                      <i class="fas fa-database"></i>
+                    </span>
+                    <span>Dataset</span>
+                  </a>
+                </span>
+
+                <!-- TODO: Update with your arXiv paper ID - ->
+                <span class="link-block">
+                  <a href="https://arxiv.org/abs/<ARXIV PAPER ID>" target="_blank"
+                  class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                    <i class="ai ai-arxiv"></i>
+                  </span>
+                  <span>arXiv</span>
+                </a>
+              </span> -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="tldr" style="padding: 1.2em; border-left: 50px solid #4a90e2; background: #aec4e6; margin-top: 2em;">
+  <h2 style="margin-top: 0;"><b>TL;DR</b></h2>
+  <p style="margin: 0;">
+    A data-efficient UAV geolocalization method trained <strong>without paired UAV–satellite images</strong>, 
+    using <strong>edge-based representations</strong> and <strong>non-contrastive learning</strong> 
+    for robust cross-altitude visual localization.
+  </p>
+</section>
+
+
+<!-- <hr size="10"; color=> -->
+ <div style="border-bottom: 1px solid #333;"></div>
+
+<section class="hero is-small">
+  <div class="hero-body">
+    <div class="container has-text-justified">
+      <img src="static/images/model_overview_3steps.svg"
+           alt="Overview of the model"
+           loading="lazy"
+           style="max-width: 100%; height: auto;">
+      <h2 class="subtitle">
+        Overview of CAEVL. All input images are first processed through a Canny filter to extract the edges. 
+        An autoencoder is trained using a pixel-wise L<sub>2</sub> loss and a perceptual loss. The decoder is then discarded and the encoder 
+        is fine-tuned using a non-contrastive approach. Two views of the same input image are passed through the encoder to produce both local features 
+        (feature maps before pooling) and global features (embeddings after pooling). 
+        The local features are fed to a local projection head to project them to a smaller space. 
+        Two sets of matches are computed: one using the spatial information from each view, and the other based on the L<sub>2</sub>-distance in the embedding space. 
+        The VICReg criterion is then applied to these matched spatial embeddings. Furthermore, the global features are passed into a 
+        global projection head to produce global embeddings. The VICReg criterion is applied on these global embeddings. 
+        After training, the local and global projection heads are discarded. The encoder is kept to compute embeddings of UAV and reference images,
+        that will be compared using the cosine similarity.
+      </h2>
+    </div>
+  </div>
+</section>
+
+<!-- Paper abstract -->
+<section class="section hero is-light">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <!-- TODO: Replace with your paper abstract -->
+          <p>
+             Image-based localization in GNSS-denied environments is critical for UAV autonomy. Existing state-of-the-art approaches rely on matching UAV images to geo-referenced satellite images; however, they typically require large-scale, paired UAV–satellite datasets for training. Such data are costly to acquire and often unavailable, limiting their applicability.
+             To address this challenge, we adopt a training paradigm that removes the need for UAV imagery during training by learning directly from satellite-view reference images. This is achieved through a dedicated augmentation strategy that simulates the visual domain shift between satellite and real-world UAV views.
+             We introduce <b>CAEVL</b>, an efficient model designed to exploit this paradigm, and validate it on <b>ViLD</b>, a new and challenging dataset of real-world UAV images that we release to the community. Our method achieves competitive performance compared to approaches trained with paired data, demonstrating its effectiveness and strong generalization capabilities.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- End paper abstract -->
+
+
+<section class="hero is-small">
+  <div class="hero-body">
+    <div class="container has-text-justified">
+
+      <h1 class="title is-3 has-text-centered">Results Overview</h1>
+
+      <img src="static/images/results.png"
+           alt="Overview of the model"
+           loading="lazy"
+           style="max-width: 100%; height: auto;">
+
+      <h2 class="subtitle">
+        Comparison of Recall@K performance for various methods at different localization thresholds
+        (100m, 150m, 250m, and 500m) on the ViLD dataset. Each method’s descriptor dimension and
+        computational cost (GFLOPs) per image query are also reported.
+        <b>Bold</b> values indicate the best in each column, while
+        <u>underlined</u> values represent the second best.
+      </h2>
+
+    </div>
+  </div>
+</section>
+
+
+
+
+
+
+<!-- Dataset section -->
+<section class="section hero is-light" id="dataset">
+  <div class="container">
+
+    <h1 class="title is-3 has-text-centered">
+      <img src="static/images/favicon.ico" alt="CAEVL icon" style="height: 50px; vertical-align: middle; margin-right: 0.5rem;">
+      ViLD Dataset
+    </h1>
+    <h2 class="subtitle has-text-centered">
+      A challenging UAV localization dataset with real-world flight imagery and high-resolution georeferenced satellite maps.
+    </h2>
+
+    <div class="content">
+
+      <h3>📦 Overview</h3>
+      <p>
+        The <b>ViLD dataset</b> (Visual Localization Dataset) is a new benchmark designed for
+        evaluating UAV-to-satellite image retrieval in GNSS-denied environments. It contains real UAV images
+        captured from high altitudes under challenging conditions including motion blur, low-light,
+        camera noise, distortions, and imperfect attitude stabilization.
+      </p>
+
+      <!-- start examples 
+      <h3>📊 Examples</h3>
+      <div class="columns is-multiline">
+
+        <div class="column is-one-half" style="max-width: 600px; margin: auto;">
+          <figure class="image">
+            <img src="static/images/dataset/query0.png" alt="UAV example 1">
+          </figure>
+          <figcaption class="has-text-centered">Raw UAV frame</figcaption>
+        </div>
+
+        <div class="column is-one-half" style="max-width: 600px; margin: auto;">
+          <figure class="image">
+            <img src="static/images/dataset/ref0.png" alt="Satellite example 1">
+          </figure>
+          <figcaption class="has-text-centered">Corresponding satellite tile</figcaption>
+        </div>
+
+      </div>
+       stop examples -->
+
+      <!-- Image carousel -->
+       <h3>📊 Examples</h3>
+      <section class="hero is-small">
+        <div class="hero-body">
+          <div class="container">
+            <div id="results-carousel" class="carousel results-carousel">
+            <div class="item">
+              <!-- TODO: Replace with your research result images -->
+              <div class="columns is-multiline">
+
+                <div class="column is-one-half" style="max-width: 500px; margin: auto;">
+                  <figure class="image">
+                    <img src="static/images/dataset/query0.png" alt="UAV example 1">
+                  </figure>
+                </div>
+
+                <div class="column is-one-half" style="max-width: 500px; margin: auto;">
+                  <figure class="image">
+                    <img src="static/images/dataset/ref0.png" alt="Satellite example 1">
+                  </figure>
+                </div>
+
+              </div>               
+              <!-- TODO: Replace with description of this result -->
+              <h2 class="subtitle has-text-centered">
+                UAV image (left) ; Corresponding satellite image (right)
+              </h2>
+            </div>
+            <div class="item">
+              <!-- Your image here -->
+              <div class="columns is-multiline">
+
+                <div class="column is-one-half" style="max-width: 500px; margin: auto;">
+                  <figure class="image">
+                    <img src="static/images/dataset/query1.png" alt="UAV example 1">
+                  </figure>
+                </div>
+
+                <div class="column is-one-half" style="max-width: 500px; margin: auto;">
+                  <figure class="image">
+                    <img src="static/images/dataset/ref1.png" alt="Satellite example 1">
+                  </figure>
+                </div>
+
+              </div>    
+              <h2 class="subtitle has-text-centered">
+                UAV image (left) ; Corresponding satellite image (right)
+              </h2>
+            </div>
+            <div class="item">
+              <!-- Your image here -->
+              <div class="columns is-multiline">
+
+                <div class="column is-one-half" style="max-width: 500px; margin: auto;">
+                  <figure class="image">
+                    <img src="static/images/dataset/query2.png" alt="UAV example 1">
+                  </figure>
+                </div>
+
+                <div class="column is-one-half" style="max-width: 500px; margin: auto;">
+                  <figure class="image">
+                    <img src="static/images/dataset/ref2.png" alt="Satellite example 1">
+                  </figure>
+                </div>
+
+              </div>    
+              <h2 class="subtitle has-text-centered">
+              UAV image (left) ; Corresponding satellite image (right)
+            </h2>
+          </div>
+          <div class="item">
+            <!-- Your image here -->
+              <div class="columns is-multiline">
+
+                <div class="column is-one-half" style="max-width: 500px; margin: auto;">
+                  <figure class="image">
+                    <img src="static/images/dataset/query3.png" alt="UAV example 1">
+                  </figure>
+                </div>
+
+                <div class="column is-one-half" style="max-width: 500px; margin: auto;">
+                  <figure class="image">
+                    <img src="static/images/dataset/ref3.png" alt="Satellite example 1">
+                  </figure>
+                </div>
+
+              </div>    
+            <h2 class="subtitle has-text-centered">
+              UAV image (left) ; Corresponding satellite image (right)
+            </h2>
+          </div>
+        </div>
+      </div>
+      </div>
+      </section>
+      <!-- End image carousel -->
+
+    </div>
+  </div>
+</section>
+
+
+<!-- 
+<!- - Paper poster - ->
+<section class="hero is-small is-light">
+  <div class="hero-body">
+    <div class="container">
+      <h2 class="title">Poster</h2>
+
+      <!- - TODO: Replace with your poster PDF - ->
+      <iframe  src="static/pdfs/sample.pdf" width="100%" height="550">
+          </iframe>
+        
+      </div>
+    </div>
+  </section>
+<!- -End paper poster - ->
+-->
+
+
+<!--BibTex citation -->
+  <section class="section" id="BibTeX">
+    <div class="container is-max-desktop content">
+      <div class="bibtex-header">
+        <h2 class="title">BibTeX</h2>
+        <button class="copy-bibtex-btn" onclick="copyBibTeX()" title="Copy BibTeX to clipboard">
+          <i class="fas fa-copy"></i>
+          <span class="copy-text">Copy</span>
+        </button>
+      </div>
+      <pre id="bibtex-code"><code>@article{amadei2026caevl,
+  title={Beyond Paired Data: Self-Supervised UAV Geo-Localization from Reference Imagery Alone},
+  author={Amadei, Tristan and Meinhardt-Llopis, Enric and Bascle, Benedicte and Abgrall, Corentin and Facciolo, Gabriele},
+  journal={2026 IEEE/CVF Winter Conference on Applications of Computer Vision (WACV)},
+  year={2026},
+  organization={IEEE}
+}</code></pre>
+    </div>
+</section>
+<!--End BibTex citation -->
+
+
+  <footer class="footer">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+
+          <p>
+            This page was built using the <a href="https://github.com/eliahuhorwitz/Academic-project-page-template" target="_blank">Academic Project Page Template</a> which was adopted from the <a href="https://nerfies.github.io" target="_blank">Nerfies</a> project page.
+            You are free to borrow the source code of this website, we just ask that you link back to this page in the footer. <br> This website is licensed under a <a rel="license"  href="http://creativecommons.org/licenses/by-sa/4.0/" target="_blank">Creative
+            Commons Attribution-ShareAlike 4.0 International License</a>.
+          </p>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- Statcounter tracking code -->
+  
+<!-- You can add a tracker to track page visits by creating an account at statcounter.com -->
+
+    <!-- End of Statcounter Code -->
+
+  </body>
+  </html>
