@@ -1,0 +1,1 @@
+The majority of augmentations used in the dataset had to be re-written, because for VICRegL, the transformations used output both the augmented images as well as the original locations in the non-augmented image. Hence, following augmentations receive a tuple (image, locations) as input and must only be called on the images.
