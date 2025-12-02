@@ -2,7 +2,7 @@ import torch
 from torch import nn
 from torch.optim import AdamW
 from torch.optim.lr_scheduler import ReduceLROnPlateau
-from timm.models.layers import trunc_normal_
+from timm.layers import trunc_normal_
 
 from caevl.ae.autoencoder.ae_blocks import Encoder, Decoder
 from caevl.ae.autoencoder.perceptual_loss import Perceptual_DinoV2

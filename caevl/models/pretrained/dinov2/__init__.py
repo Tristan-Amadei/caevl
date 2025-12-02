@@ -3,12 +3,8 @@
 # This source code is licensed under the Apache License, Version 2.0
 # found in the LICENSE file in the root directory of this source tree.
 
-import logging
 
 from . import vision_transformer as vits
-
-
-logger = logging.getLogger("dinov2")
 
 
 def build_model(args, only_teacher=False, img_size=224):

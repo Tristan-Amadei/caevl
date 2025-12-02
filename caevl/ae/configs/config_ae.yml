@@ -1,5 +1,4 @@
 image_size: [256, 224]
-seed: 42
 
 AutoEncoder:
   nb_input_channels: 1

@@ -39,7 +39,7 @@ def list_images(dir_):
     return images
 
 
-def load_dataset(config, canny_edges):
+def load_dataset(config, canny_edges, return_both_images=False):
     image_size = tuple(config['image_size'])
 
     images_directory = config['Dataset']['images_directory']
@@ -50,6 +50,7 @@ def load_dataset(config, canny_edges):
     mean = config['Dataset'].get('mean')
     std = config['Dataset'].get('std')
     grayscale = config['Dataset'].get('grayscale', True)
+    return_locations = config['Dataset'].get('return_locations', False)
     
     path_dict_coordinates = config['Dataset']['path_dict_coordinates']
     
@@ -67,10 +68,12 @@ def load_dataset(config, canny_edges):
                                use_PIL=use_PIL,
                                apply_transform=apply_transform,
                                apply_normalization=apply_normalization,
+                               return_both_images=return_both_images,
                                output_size=image_size,
                                mean=mean,
                                std=std,
                                canny_edges=canny_edges,
+                               return_locations=return_locations,
                                return_index=True,
                                grayscale=grayscale)
     
@@ -79,10 +82,12 @@ def load_dataset(config, canny_edges):
                              use_PIL=use_PIL,
                              apply_transform=False,
                              apply_normalization=apply_normalization,
+                             return_both_images=return_both_images,
                              output_size=image_size,
                              mean=mean,
                              std=std,
                              canny_edges=canny_edges,
+                             return_locations=return_locations,
                              return_index=True,
                              grayscale=grayscale)
     
