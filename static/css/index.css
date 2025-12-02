@@ -749,5 +749,9 @@ a:focus {
   }
 }
 
-
-
+.hal-icon-bg {
+  height: 1.2em;
+  padding: 2px;
+  background: rgb(255, 255, 255);
+  border-radius: 6px;
+}
