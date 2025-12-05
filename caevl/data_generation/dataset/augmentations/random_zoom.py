@@ -24,11 +24,11 @@ class RandomZoomIn(torchvision.transforms.RandomResizedCrop):
         self.degrees = degrees
         self.translate = translate
         self.return_locations = return_locations
-        
-        self.rotation_object = RandomRotationWithProbability(degrees=self.degrees, rotation_probability=1, 
+
+        self.rotation_object = RandomRotationWithProbability(degrees=self.degrees, rotation_probability=1,
                                                              return_locations=self.return_locations)
         self.translation_object = TranslateAndCrop(translate=self.translate, probability=1, return_locations=self.return_locations)
-        
+
     def _resized_crop(self, img):
         height, width = get_height_width(img)
         i, j, h, w = self.get_params(img, self.scale, self.ratio)
@@ -36,23 +36,25 @@ class RandomZoomIn(torchvision.transforms.RandomResizedCrop):
         if self.return_locations:
             return cropped_img, (i, j, h, w, height, width)
         return cropped_img
-        
+
     def forward(self, img):
         if random.random() < self.probability:
             draw = random.random()
-            if draw < 1/3:
+            if draw < 1 / 3:
                 ## rotation + crop + resize
                 return self.rotation_object(img)
-            if draw < 2/3:
+            if draw < 2 / 3:
                 return self.translation_object(img)
             return self._resized_crop(img)
         if self.return_locations:
             height, width = get_height_width(img)
             return img, (0, 0, height, width, height, width)
         return img
-    
-    
+
+
 ### RANDOM ROTATION & CROP ###
+
+
 def _largest_rotated_rect(w, h, angle):
 
     quadrant = int(math.floor(angle / (math.pi / 2))) & 3
@@ -75,7 +77,7 @@ def _largest_rotated_rect(w, h, angle):
     x = y * math.tan(gamma)
 
     return bb_w - 2 * x, bb_h - 2 * y
-    
+
 
 class RandomRotationWithProbability:
     def __init__(self, degrees, rotation_probability=0.5, return_locations=False):
@@ -95,7 +97,7 @@ class RandomRotationWithProbability:
 
             # compute (i, j) in the original image by reversing the rotation
             i, j = self._reverse_rotation(i_crop, j_crop, angle)
-            
+
             if self.return_locations:
                 return image, (i, j, h_crop, w_crop, output_height, output_width)
             return image
@@ -133,9 +135,11 @@ class RandomRotationWithProbability:
         j = (i_crop * sin_theta) + (j_crop * cos_theta)
 
         return round(i), round(j)
-    
-    
+
+
 ### RANDOM TRANSLATION & CROP ###
+
+
 class TranslateAndCrop:
     def __init__(self, translate=(0, 0), probability=0.5, probability_translation_x=0.75, probability_translation_y=0.75,
                  return_locations=False):
@@ -144,28 +148,28 @@ class TranslateAndCrop:
         self.probability_translation_x = probability_translation_x
         self.probability_translation_y = probability_translation_y
         self.return_locations = return_locations
-    
+
     def __call__(self, img):
         output_height, output_width = get_height_width(img)
-        
+
         if random.random() < self.probability_translation_x:
             translation_x = random.uniform(-self.translate[0], self.translate[0])
         else:
             translation_x = 0
-            
+
         if random.random() < self.probability_translation_y:
             translation_y = random.uniform(-self.translate[1], self.translate[1])
         else:
             translation_y = 0
-        
+
         translation = (translation_x, translation_y)
         # Translate the image
         img = TF.affine(img, angle=0, translate=translation, scale=1, shear=0, fill=0)
-        
+
         # Find coordinates where the image is non-zero
         non_zero_coords = np.where(np.array(img).squeeze() != 0)
         non_zero_coords = np.column_stack(non_zero_coords)
-        
+
         if non_zero_coords.shape[0] == 0:
             # If all pixels are zero, return the original image
             return img
@@ -174,10 +178,10 @@ class TranslateAndCrop:
         x_max = non_zero_coords[:, 0].max()
         y_min = non_zero_coords[:, 1].min()
         y_max = non_zero_coords[:, 1].max()
-        
+
         height = output_height if x_min == x_max else x_max - x_min
         width = output_width if y_min == y_max else y_max - y_min
-        
+
         # Crop the image to the bounding box of non-zero regions
         img = TF.crop(img=img, top=x_min, left=y_min, height=height, width=width)
         img = TF.resize(img, (output_height, output_width))
@@ -185,5 +189,3 @@ class TranslateAndCrop:
         if self.return_locations:
             return img, (x_min, y_min, height, width, output_height, output_width)
         return img
-    
-            

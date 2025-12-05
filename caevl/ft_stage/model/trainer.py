@@ -1,5 +1,4 @@
 import torch
-
 from tqdm import tqdm
 import os
 import numpy as np
@@ -20,60 +19,73 @@ def make_dir(path):
         os.makedirs(path)
 
 
-class AutoEncoder_Trainer:
+class FtStageTrainer:
     """
-    Trainer class for an autoencoder model.
+    A trainer class for the finetuning stage of the model, handling training, validation, and localization.
 
     Parameters
     ----------
     model : torch.nn.Module
-        The autoencoder model to train.
+        The model to be trained.
     train_loader : torch.utils.data.DataLoader
         DataLoader for the training dataset.
     val_loader : torch.utils.data.DataLoader
         DataLoader for the validation dataset.
+    optimizer : torch.optim.Optimizer
+        Optimizer for training the model.
+    scheduler : torch.optim.lr_scheduler, optional
+        Learning rate scheduler. The default is None.
     early_stopping : EarlyStopping, optional
-        EarlyStopping object to stop training early. Default is None.
+        Early stopping object. The default is None.
     """
 
-    def __init__(self, model, train_loader, val_loader, early_stopping=None):
+    def __init__(self, model, train_loader, val_loader,
+                 optimizer, scheduler, early_stopping=None):
         self.model = model
         self.train_loader = train_loader
         self.val_loader = val_loader
+
+        self.optimizer = optimizer
+        self.scheduler = scheduler
         self.early_stopping = early_stopping
 
     def validate(self, loader=None):
         """
-        Validate the model on the given dataset.
+        Validate the model on the given loader.
 
         Parameters
         ----------
         loader : torch.utils.data.DataLoader, optional
-            DataLoader for the validation dataset. Default is None, which will use val_loader.
+            DataLoader to use for validation. The default is None.
+            If None, the val_loader of teh Trainer class is used.
 
         Returns
         -------
         float
-            Average validation loss.
+            The average validation loss.
         """
 
-        self.model.eval()
+        self.model.eval_mode()
         loss = 0.
 
         if loader is None:
             loader = self.val_loader
 
         nb_samples = 0
-        for inputs, coordinates, _ in loader:
+        for elements in iter(loader):
+            inputs = elements[0]
+            transformed_inputs = elements[1]
+
             batch_size = inputs.shape[0]
             inputs = inputs.to(self.model.device)
+            transformed_inputs = transformed_inputs.to(self.model.device)
 
-            outputs, embeddings = self.model(inputs)
-            loss_batch = batch_size * self.model.loss_function(inputs, outputs, embeddings, coordinates)
-            loss += loss_batch.item()
+            loss_batch = batch_size * self.model(inputs, transformed_inputs)
+            loss += loss_batch.mean().item()
             nb_samples += batch_size
 
-        loss /= nb_samples
+        if nb_samples > 0:
+            loss /= nb_samples
         return loss
 
     def train_epoch(self, train_loader, epoch):
@@ -90,28 +102,32 @@ class AutoEncoder_Trainer:
         Returns
         -------
         float
-            Average training loss for the epoch.
+            The average training loss for the epoch.
         """
 
+        self.model.train_mode()
         self.model.train()
         train_loss = 0.
         nb_samples = 0
+        with torch.enable_grad(), tqdm(range(len(train_loader)), unit='batch') as bar:
+            for elements in iter(train_loader):
+                inputs = elements[0]
+                transformed_inputs = elements[1]
+                locations = None if len(elements) == 4 else elements[4]
 
-        with tqdm(range(len(train_loader)), unit='batch') as bar:
-            for inputs, coordinates, _ in train_loader:
                 bar.set_description(f'Epoch {epoch}')
-
                 batch_size = inputs.shape[0]
+
                 inputs = inputs.to(self.model.device)
+                transformed_inputs = transformed_inputs.to(self.model.device)
+                if locations is not None: locations = locations.to(self.model.device)
 
-                # Forward pass
-                outputs, embeddings = self.model(inputs)
-                loss = self.model.loss_function(inputs, outputs, embeddings, coordinates)
+                losses = self.model(inputs, transformed_inputs, locations=locations)
+                loss = losses.mean()
 
-                # Backward pass and optimization
-                self.model.optimizer.zero_grad()
+                self.optimizer.zero_grad()
                 loss.backward()
-                self.model.optimizer.step()
+                self.optimizer.step()
 
                 train_loss += batch_size * loss.item()
                 nb_samples += batch_size
@@ -119,7 +135,8 @@ class AutoEncoder_Trainer:
                 bar.set_postfix(train_loss=train_loss / nb_samples)
                 bar.update(1)
 
-            train_loss /= nb_samples
+            if nb_samples > 0:
+                train_loss /= nb_samples
         return train_loss
 
     def save_checkpoint(self, save_dir, epoch, save_optimizer=False):
@@ -140,17 +157,16 @@ class AutoEncoder_Trainer:
         torch.save(self.model.state_dict(), os.path.join(save_dir,
                                                          f'epoch{epoch}', f'model_epoch{epoch}.pth'))
         if save_optimizer:
-            torch.save(self.model.optimizer.state_dict(),
-                       os.path.join(save_dir, f'epoch{epoch}', f'optimizer_epoch{epoch}.pth'))
-        if self.model.scheduler is not None:
-            torch.save(self.model.scheduler.state_dict(),
-                       os.path.join(save_dir, f'epoch{epoch}', f'scheduler_epoch{epoch}.pth'))
+            torch.save(self.optimizer.state_dict(), os.path.join(save_dir,
+                                                                 f'epoch{epoch}', f'optimizer_epoch{epoch}.pth'))
+        if self.scheduler is not None:
+            torch.save(self.scheduler.state_dict(), os.path.join(save_dir,
+                                                                 f'epoch{epoch}', f'scheduler_epoch{epoch}.pth'))
 
-    def train(self, num_epochs, model_save_path=None,
-              dir_save_losses=None, force_save=False, save_checkpoint=0, save_optimizer=False,
-              resume_training=False):
+    def train_(self, num_epochs, model_save_path=None,
+               dir_save_losses=None, force_save=False, save_checkpoint=0, save_optimizer=False):
         """
-        Train the model for the specified number of epochs.
+        Train the model for a specified number of epochs.
 
         Parameters
         ----------
@@ -159,33 +175,23 @@ class AutoEncoder_Trainer:
         model_save_path : str, optional
             Path to save the model. If None, the weights are not saved. Default is None.
         dir_save_losses : str, optional
-            Directory to save the training and validation losses. Default is None.
+            Directory to save the training and validation losses. The default is None.
         force_save : bool, optional
-            Flag to force saving the model at every epoch, even if val_loss is going up. Default is False.
+            Whether to force save the model. The default is False.
         save_checkpoint : int, optional
-            Interval to save checkpoints. Default is 0.
+            Frequency of saving checkpoints. The default is 0.
         save_optimizer : bool, optional
-            Flag to indicate if the optimizer should be saved. Default is False.
-        resume_training : bool, optional
-            Flag to indicate if training should be resumed from a previous training. Default is False.
+            Whether to save the optimizer state. The default is False.
 
         Returns
         -------
-        train_losses : list
-            List of training losses.
-        val_losses : list
-            List of validation losses.
+        train_losses : list of float
+            List of training losses for each epoch.
+        val_losses : list of float
+            List of validation losses for each epoch.
         """
 
-        def load_list(path, resume_training):
-            try:
-                assert resume_training
-                return list(np.load(path))
-            except:
-                return []
-
-        train_losses = load_list(os.path.join(dir_save_losses, 'train_losses.npy'), resume_training)
-        val_losses = load_list(os.path.join(dir_save_losses, 'val_losses.npy'), resume_training)
+        train_losses, val_losses = [], []
 
         if self.early_stopping is None:
             self.early_stopping = EarlyStopping(patience=num_epochs, min_delta=0)
@@ -197,28 +203,32 @@ class AutoEncoder_Trainer:
         if dir_save_losses is not None:
             make_dir(dir_save_losses)
 
-        for epoch in range(len(train_losses), num_epochs):
+        for epoch in range(num_epochs):
+
             train_loss = self.train_epoch(self.train_loader, epoch)
             train_losses.append(train_loss)
 
             if len(self.val_loader.dataset) > 0:
                 val_loss = self.validate(self.val_loader)
-                val_losses.append(val_loss)
             else:
                 val_loss = -1
+            val_losses.append(val_loss)
 
-            current_learning_rate = self.model.optimizer.param_groups[0]['lr']
+            current_learning_rate = self.optimizer.param_groups[0]['lr']
+
             print(f'Epoch {epoch}, cur_lr: {current_learning_rate}, train loss: {train_loss:.4f}, val loss: {val_loss:.4f}, '
                   f'patience: {self.early_stopping.counter}/{self.early_stopping.patience}')
-
-            if self.model.scheduler is not None and val_loss >= 0:
-                self.model.scheduler.step(val_loss)
 
             if dir_save_losses is not None:
                 np.save(os.path.join(dir_save_losses, 'train_losses.npy'), train_losses)
                 np.save(os.path.join(dir_save_losses, 'val_losses.npy'), val_losses)
 
-            self.early_stopping(val_loss)
+            validation_val = val_loss if val_loss >= 0 else None
+
+            if self.scheduler is not None and validation_val is not None:
+                self.scheduler.step(validation_val)
+
+            self.early_stopping(validation_val)
             if self.early_stopping.early_stop:
                 print("### Early stopping ###")
                 break
@@ -227,10 +237,11 @@ class AutoEncoder_Trainer:
                 save_dir, _ = os.path.split(model_save_path)
                 self.save_checkpoint(save_dir, epoch, save_optimizer)
 
-            elif model_save_path is not None and (self.early_stopping.counter == 0 or force_save):
+            if model_save_path is not None and (self.early_stopping.counter == 0 or force_save):
+                save_dir, _ = os.path.split(model_save_path)
                 torch.save(self.model.state_dict(), model_save_path)
-                torch.save(self.model.optimizer.state_dict(), os.path.join(model_save_dir, 'optimizer.pth'))
-                torch.save(self.model.scheduler.state_dict(), os.path.join(model_save_dir, 'scheduler.pth'))
+                torch.save(self.optimizer.state_dict(), os.path.join(save_dir, 'optimizer.pth'))
+                if self.scheduler is not None:
+                    torch.save(self.scheduler.state_dict(), os.path.join(save_dir, 'scheduler.pth'))
 
-        self.save_checkpoint(save_dir, '_final', save_optimizer)
         return train_losses, val_losses

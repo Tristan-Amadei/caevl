@@ -1,9 +1,10 @@
 import torch
 from torch import nn
 
+
 class Encoder(torch.nn.Module):
     """Encoder part of the AutoEncoder."""
-    
+
     def __init__(self,
                  nb_input_channels: int,
                  nb_channels_fst_feature_map: int,
@@ -21,16 +22,18 @@ class Encoder(torch.nn.Module):
             Dimension of the latent space.
         """
         super(Encoder, self).__init__()
-        
+
         self.nb_input_channels = nb_input_channels
         self.nb_channels_fst_feature_map = nb_channels_fst_feature_map
         self.latent_dim = latent_dim
-        
+
         modules = []
         #  Set the number of channels per layer
-        hidden_dims = [self.nb_channels_fst_feature_map, 2*self.nb_channels_fst_feature_map, 
-                       4*self.nb_channels_fst_feature_map, 8*self.nb_channels_fst_feature_map, 
-                       8*self.nb_channels_fst_feature_map]
+        hidden_dims = [self.nb_channels_fst_feature_map,
+                       2 * self.nb_channels_fst_feature_map,
+                       4 * self.nb_channels_fst_feature_map,
+                       8 * self.nb_channels_fst_feature_map,
+                       8 * self.nb_channels_fst_feature_map]
 
         ## BUILD ENCODER
         in_nb_features = nb_input_channels
@@ -43,29 +46,31 @@ class Encoder(torch.nn.Module):
                     nn.LeakyReLU())
             )
             in_nb_features = h_dim
-            
+
         self.encoder = nn.Sequential(*modules)
-        self.linear_bottleneck = torch.nn.LazyLinear(self.latent_dim)        
-                
+        self.linear_bottleneck = torch.nn.LazyLinear(self.latent_dim)
+
     def forward(self, x):
 
         y = self.encoder(x)
 
         y = torch.flatten(y, start_dim=1)
-        
+
         # project to embedding space
         y = self.linear_bottleneck(y)
         return y
-    
+
     def forward_features_unpooled(self, x, training=True):
-        """Pass input data in the encoder, returning both unpooled and pooled representations.
+        """Pass input data in the encoder, returning both unpooled and
+        pooled representations.
 
         Parameters
         ----------
         x : torch.Tensor, shape (b, c, h, w)
             Input data.
         training : bool, optional
-            Parameter to respect other model's 'forward_features_unpooled' function's parameters, not used here, by default True
+            Parameter to respect other model's 'forward_features_unpooled'
+            function's parameters, not used here, by default True
 
         Returns
         -------
@@ -80,15 +85,15 @@ class Encoder(torch.nn.Module):
 
 class Decoder(torch.nn.Module):
     """Decoder part of the AutoEncoder."""
-    
+
     def __init__(self,
                  nb_input_channels: int,
                  nb_channels_fst_feature_map: int,
                  latent_dim: int,
                  last_feature_size: int,
-                 canny_edges: bool=False,
-                 softmax: bool=False,
-                 sigmoid: bool=False,
+                 canny_edges: bool = False,
+                 softmax: bool = False,
+                 sigmoid: bool = False,
                  **kwargs) -> None:
         """Create an instance of a Decoder.
 
@@ -119,53 +124,53 @@ class Decoder(torch.nn.Module):
 
         modules = []
         #  Set the number of channels per layer
-        self.hidden_dims = [self.nb_channels_fst_feature_map, 
-                            2*self.nb_channels_fst_feature_map, 4*self.nb_channels_fst_feature_map, 
-                            8*self.nb_channels_fst_feature_map]
-        
+        self.hidden_dims = [self.nb_channels_fst_feature_map,
+                            2 * self.nb_channels_fst_feature_map,
+                            4 * self.nb_channels_fst_feature_map,
+                            8 * self.nb_channels_fst_feature_map]
+
         # reverse since its up-sampling step
         self.hidden_dims.reverse()
 
         ## BUILD DECODER
         # first layer that maps embedding to 3D space
-        self.linear_map = torch.nn.Linear(self.latent_dim, 
-                                          self.last_feature_size[0] * self.last_feature_size[1] * 
-                                          self.hidden_dims[0])
-        
+        linear_size = self.last_feature_size[0] * self.last_feature_size[1] * self.hidden_dims[0]
+        self.linear_map = torch.nn.Linear(self.latent_dim,
+                                          linear_size)
+
         # UP-SAMPLING
-        for i in range(len(self.hidden_dims)-1):
+        for i in range(len(self.hidden_dims) - 1):
             modules.append(
                 nn.Sequential(
-                    nn.ConvTranspose2d(in_channels=self.hidden_dims[i], 
-                                       out_channels=self.hidden_dims[i+1],
+                    nn.ConvTranspose2d(in_channels=self.hidden_dims[i],
+                                       out_channels=self.hidden_dims[i + 1],
                                        kernel_size=2, stride=2, padding=0),
-                    nn.BatchNorm2d(self.hidden_dims[i+1]),
+                    nn.BatchNorm2d(self.hidden_dims[i + 1]),
                     nn.LeakyReLU())
             )
-            
+
         if canny_edges or sigmoid:
             self.last_activation = nn.Sigmoid()
         elif softmax:
             self.last_activation = nn.Softmax()
         else:
             self.last_activation = nn.Identity()
-            
+
         modules.append(
             nn.Sequential(
-                nn.ConvTranspose2d(in_channels=self.hidden_dims[-1], 
+                nn.ConvTranspose2d(in_channels=self.hidden_dims[-1],
                                    out_channels=self.nb_input_channels,
-                                       kernel_size=2, stride=2, padding=0),
+                                   kernel_size=2, stride=2, padding=0),
                 self.last_activation
             )
         )
-        
+
         self.decoder = nn.Sequential(*modules)
-        
-                
+
     def forward(self, x):
 
         z = self.linear_map(x)
-        z = z.reshape((z.shape[0], self.hidden_dims[0], 
+        z = z.reshape((z.shape[0], self.hidden_dims[0],
                        self.last_feature_size[0], self.last_feature_size[1]))
         z = self.decoder(z)
         return z

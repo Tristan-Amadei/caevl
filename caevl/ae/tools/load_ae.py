@@ -1,6 +1,12 @@
+import yaml
+
 from caevl.ae.autoencoder.ae_model import AutoEncoder
 
+
 def load_ae(config):
+    if isinstance(config, str):
+        with open(config, 'r') as f:
+            config = yaml.safe_load(f)
     image_size = tuple(config['image_size'])
 
     nb_input_channels = config['AutoEncoder']['nb_input_channels']
@@ -18,10 +24,10 @@ def load_ae(config):
     softmax = config['AutoEncoder'].get('softmax', False)
     sigmoid = config['AutoEncoder'].get('sigmoid', False)
     use_cbam = config['AutoEncoder'].get('use_cbam', False)
-    
+
     print(f'Using loss: {loss_name}. Using perceptual loss: {flag_perceptual_loss}')
     print(f'Using Canny edges: {canny_edges}.')
-    
+
     autoencoder = AutoEncoder(input_dimensions=image_size,
                               nb_input_channels=nb_input_channels,
                               nb_channels_fst_feature_map=nb_channels_fst_feature_map,
@@ -38,5 +44,5 @@ def load_ae(config):
                               softmax=softmax,
                               sigmoid=sigmoid,
                               use_cbam=use_cbam)
-    
+
     return autoencoder

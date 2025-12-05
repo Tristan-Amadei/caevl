@@ -5,8 +5,14 @@ import torch
 def tensor_to_im(tensor):
     return tensor.detach().cpu().permute(0, 2, 3, 1).numpy()
 
-def plot_images(images, n_cols=8, n_rows=1, float_=True, title='', show=True):
-    fig, axs = plt.subplots(n_rows, n_cols, figsize=(2*n_cols, 2*n_rows))
+
+def plot_images(images,
+                n_cols=8,
+                n_rows=1,
+                float_=True,
+                title='',
+                show=True):
+    fig, axs = plt.subplots(n_rows, n_cols, figsize=(2 * n_cols, 2 * n_rows))
 
     def plot_row(ax_row, images_row):
         for i, im in enumerate(images_row):
@@ -29,12 +35,12 @@ def plot_images(images, n_cols=8, n_rows=1, float_=True, title='', show=True):
 def plot_first_reconstruction(loader, model, nb_images_to_plot=8, title='', float_=True, scalar=1):
     images, _ = next(iter(loader))
     reconstructions, _ = model(images.to(model.device))
-    
+
     n_channels = reconstructions.shape[1]
     if n_channels > 3:
-        images = torch.argmax(images, dim=1, keepdims=True)/n_channels
-        reconstructions = torch.argmax(reconstructions, dim=1, keepdims=True)/n_channels
-    
+        images = torch.argmax(images, dim=1, keepdims=True) / n_channels
+        reconstructions = torch.argmax(reconstructions, dim=1, keepdims=True) / n_channels
+
     images_numpy = tensor_to_im(images)
     reconstructions_numpy = tensor_to_im(reconstructions)
 

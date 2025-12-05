@@ -14,9 +14,9 @@ class BatchShuffleSampler(torch.utils.data.Sampler):
         self.dataset = dataset
         self.batch_size = batch_size
         self.shuffle = shuffle
-        
+
     def __len__(self):
-        return int(len(self.dataset)/self.batch_size)+1
+        return int(len(self.dataset) / self.batch_size) + 1
 
     def __iter__(self):
         n = len(self.dataset)
@@ -31,7 +31,7 @@ class BatchShuffleSampler(torch.utils.data.Sampler):
 
 
 def list_images(dir_):
-    images =  glob(os.path.join(dir_, '*tif*'))
+    images = glob(os.path.join(dir_, '*tif*'))
     images += glob(os.path.join(dir_, '*jpg'))
     images += glob(os.path.join(dir_, '*JPG'))
     images += glob(os.path.join(dir_, '*png'))
@@ -51,46 +51,51 @@ def load_dataset(config, canny_edges, return_both_images=False):
     std = config['Dataset'].get('std')
     grayscale = config['Dataset'].get('grayscale', True)
     return_locations = config['Dataset'].get('return_locations', False)
-    
+
     path_dict_coordinates = config['Dataset']['path_dict_coordinates']
-    
-    train_image_paths = list_images(images_directory)       
+    path_dict_coordinates_val = config['Dataset'].get('path_dict_coordinates_val')
+
+    train_image_paths = list_images(images_directory)
     train_image_paths.sort()
-    
     with open(path_dict_coordinates, 'rb') as f:
         dict_coordinates = pickle.load(f)
 
     val_image_paths = list_images(val_images_directory)
     val_image_paths.sort()
-    
+    if path_dict_coordinates_val is not None and path_dict_coordinates_val != '':
+        with open(path_dict_coordinates_val, 'rb') as f:
+            dict_coordinates_val = pickle.load(f)
+    else:
+        dict_coordinates_val = None
+
     train_dataset = CustomDataset(image_paths=train_image_paths,
-                               dict_coordinates=dict_coordinates,
-                               use_PIL=use_PIL,
-                               apply_transform=apply_transform,
-                               apply_normalization=apply_normalization,
-                               return_both_images=return_both_images,
-                               output_size=image_size,
-                               mean=mean,
-                               std=std,
-                               canny_edges=canny_edges,
-                               return_locations=return_locations,
-                               return_index=True,
-                               grayscale=grayscale)
-    
+                                  dict_coordinates=dict_coordinates,
+                                  use_PIL=use_PIL,
+                                  apply_transform=apply_transform,
+                                  apply_normalization=apply_normalization,
+                                  return_both_images=return_both_images,
+                                  output_size=image_size,
+                                  mean=mean,
+                                  std=std,
+                                  canny_edges=canny_edges,
+                                  return_locations=return_locations,
+                                  return_index=True,
+                                  grayscale=grayscale)
+
     val_dataset = CustomDataset(image_paths=val_image_paths,
-                             dict_coordinates=dict_coordinates,
-                             use_PIL=use_PIL,
-                             apply_transform=False,
-                             apply_normalization=apply_normalization,
-                             return_both_images=return_both_images,
-                             output_size=image_size,
-                             mean=mean,
-                             std=std,
-                             canny_edges=canny_edges,
-                             return_locations=return_locations,
-                             return_index=True,
-                             grayscale=grayscale)
-    
+                                dict_coordinates=dict_coordinates_val,
+                                use_PIL=use_PIL,
+                                apply_transform=False,
+                                apply_normalization=apply_normalization,
+                                return_both_images=return_both_images,
+                                output_size=image_size,
+                                mean=mean,
+                                std=std,
+                                canny_edges=canny_edges,
+                                return_locations=False,
+                                return_index=True,
+                                grayscale=grayscale)
+
     if config['Dataset'].get('transform') is not None:
         rot_degrees = config['Dataset']['transform'].get('rot_degrees', 30)
         translate = config['Dataset']['transform'].get('translate', (20, 20))
@@ -107,7 +112,7 @@ def load_dataset(config, canny_edges, return_both_images=False):
         vignetting_prob = config['Dataset']['transform'].get('vignetting_prob', 0.9)
         masking_prob = config['Dataset']['transform'].get('masking_prob', 1)
         vignetting_val = config['Dataset']['transform'].get('vignetting_val', 70)
-        
+
         train_dataset.set_transform(rot_degrees=rot_degrees, translate=translate,
                                     blur_kernel_size=blur_kernel_size, brightness_factor=brightness_factor,
                                     contrast_factor=contrast_factor, noise_mean=noise_mean,
@@ -115,17 +120,17 @@ def load_dataset(config, canny_edges, return_both_images=False):
                                     blur_prob=blur_prob, brightness_prob=brightness_prob,
                                     contrast_prob=contrast_prob, noise_prob=noise_prob,
                                     vignetting_prob=vignetting_prob, masking_prob=masking_prob, vignetting_val=vignetting_val)
-                               
+
     ### TRAINER ###
     batch_size = int(config['trainer']['batch_size'])
     num_workers_loader = config['trainer']['num_workers_loader']
     print(f'Batch size: {batch_size}, num_workers loader: {num_workers_loader}')
-    
-    train_loader = DataLoader(train_dataset, 
-                              batch_sampler=BatchShuffleSampler(train_dataset, batch_size, True), 
+
+    train_loader = DataLoader(train_dataset,
+                              batch_sampler=BatchShuffleSampler(train_dataset, batch_size, True),
                               num_workers=num_workers_loader, persistent_workers=False)
-    val_loader = DataLoader(val_dataset, 
-                            batch_sampler=BatchShuffleSampler(val_dataset, batch_size, False), 
+    val_loader = DataLoader(val_dataset,
+                            batch_sampler=BatchShuffleSampler(val_dataset, batch_size, False),
                             num_workers=num_workers_loader, persistent_workers=False)
-    
+
     return train_loader, val_loader

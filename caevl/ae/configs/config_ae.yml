@@ -52,7 +52,6 @@ trainer:
   patience: 15
   num_epochs: 200
   model_save_path: 'caevl/models/trained/AutoEncoder/stageone/stageone.pth'
-  compute_accuracy: False
   losses_save_dir_path: 'caevl/models/trained/AutoEncoder/stageone/losses'
   force_save: False
   save_checkpoint: 1

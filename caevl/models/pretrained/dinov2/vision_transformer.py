@@ -99,7 +99,6 @@ class DinoVisionTransformer(nn.Module):
         self.interpolate_offset = interpolate_offset
 
         self.patch_embed = embed_layer(img_size=img_size, patch_size=patch_size, in_chans=in_chans, embed_dim=embed_dim)
-        num_patches = self.patch_embed.num_patches
 
         self.cls_token = nn.Parameter(torch.zeros(1, 1, embed_dim))
         # self.pos_embed = nn.Parameter(torch.zeros(1, num_patches + self.num_tokens, embed_dim))
@@ -149,7 +148,7 @@ class DinoVisionTransformer(nn.Module):
             chunksize = depth // block_chunks
             for i in range(0, depth, chunksize):
                 # this is to keep the block index consistent if we chunk the block list
-                chunked_blocks.append([nn.Identity()] * i + blocks_list[i : i + chunksize])
+                chunked_blocks.append([nn.Identity()] * i + blocks_list[i: i + chunksize])
             self.blocks = nn.ModuleList([BlockChunk(p) for p in chunked_blocks])
         else:
             self.chunked_blocks = False
@@ -185,7 +184,8 @@ class DinoVisionTransformer(nn.Module):
         assert N == M * M
         kwargs = {}
         if self.interpolate_offset:
-            # Historical kludge: add a small number to avoid floating point error in the interpolation, see https://github.com/facebookresearch/dino/issues/8
+            # Historical kludge: add a small number to avoid floating point error in the interpolation,
+            # see https://github.com/facebookresearch/dino/issues/8
             # Note: still needed for backward-compatibility, the underlying operators are using both output size and scale factors
             sx = float(w0 + self.interpolate_offset) / M
             sy = float(h0 + self.interpolate_offset) / M
@@ -236,8 +236,8 @@ class DinoVisionTransformer(nn.Module):
             output.append(
                 {
                     "x_norm_clstoken": x_norm[:, 0],
-                    "x_norm_regtokens": x_norm[:, 1 : self.num_register_tokens + 1],
-                    "x_norm_patchtokens": x_norm[:, self.num_register_tokens + 1 :],
+                    "x_norm_regtokens": x_norm[:, 1: self.num_register_tokens + 1],
+                    "x_norm_patchtokens": x_norm[:, self.num_register_tokens + 1:],
                     "x_prenorm": x,
                     "masks": masks,
                 }
@@ -256,8 +256,8 @@ class DinoVisionTransformer(nn.Module):
         x_norm = self.norm(x)
         return {
             "x_norm_clstoken": x_norm[:, 0],
-            "x_norm_regtokens": x_norm[:, 1 : self.num_register_tokens + 1],
-            "x_norm_patchtokens": x_norm[:, self.num_register_tokens + 1 :],
+            "x_norm_regtokens": x_norm[:, 1: self.num_register_tokens + 1],
+            "x_norm_patchtokens": x_norm[:, self.num_register_tokens + 1:],
             "x_prenorm": x,
             "masks": masks,
         }
@@ -303,7 +303,7 @@ class DinoVisionTransformer(nn.Module):
         if norm:
             outputs = [self.norm(out) for out in outputs]
         class_tokens = [out[:, 0] for out in outputs]
-        outputs = [out[:, 1 + self.num_register_tokens :] for out in outputs]
+        outputs = [out[:, 1 + self.num_register_tokens:] for out in outputs]
         if reshape:
             B, _, w, h = x.shape
             outputs = [

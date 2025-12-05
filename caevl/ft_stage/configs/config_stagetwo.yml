@@ -1,0 +1,53 @@
+image_size: [256, 224]
+seed: 42
+
+architecture:
+  device: 'cuda'
+  backbone: ''
+  invariance_coeff: 25
+  std_coeff: 25
+  cov_coeff: 1
+  alpha: 0.75
+
+Dataset:
+  images_directory: ''
+  val_images_directory: ''
+  path_dict_coordinates: ''
+  path_dict_coordinates_val: ''
+
+  use_PIL: True
+  apply_transform: True
+  apply_normalization: False
+
+  train_dataset:
+  canny_edges: True
+  return_locations: True
+
+  transform:
+    rot_degrees: 30
+    translate: [10, 10]
+    blur_kernel_size: 5
+    brightness_factor: 1.
+    contrast_factor: 1.
+    noise_mean: 0
+    noise_std: 0.1
+    zoom_in_prob: 0.8
+    blur_prob: 0.5
+    brightness_prob: 0.5
+    contrast_prob: 0.5
+    noise_prob: 0
+    vignetting_prob: 1
+    masking_prob: 1
+    vignetting_val: 70
+
+
+trainer:
+  batch_size: 128
+  learning_rate: 6e-5
+  num_workers_loader: 8
+  patience: 5
+  num_epochs: 100
+  model_save_path: 'caevl/models/trained/ft/stagetwo/stagetwo.pth'
+  losses_save_dir_path: 'caevl/models/trained/ft/stagetwo/losses'
+  save_checkpoint: 0
+  save_optimizer: False

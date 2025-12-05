@@ -175,3 +175,6 @@ pyrightconfig.json
 
 *.pth
 caevl/models/trained/
+.vscode
+.flake8
+results/

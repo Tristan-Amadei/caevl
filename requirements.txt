@@ -1,0 +1,14 @@
+pyyaml
+tifffile
+tqdm
+opencv-python-headless
+timm
+einops
+faiss_cpu
+loguru
+gdown
+scikit-learn
+numpy
+Pillow
+torch
+torchvision
