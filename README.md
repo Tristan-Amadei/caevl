@@ -51,13 +51,13 @@ CAEVL is a very lightweight method with a computational cost of only 1.4 GFLOPs,
 | Eigen Places | Paired | 39.8 | 78.7 | 19.7 |
 | FSRA | Paired | 37.2 | <u>84.7</u> | 13.3 |
 | DAC | Paired | <u>48.6</u> | **85.5** | 20.6 |
-|
+| &nbsp; | &nbsp; | &nbsp; | &nbsp; | &nbsp; |
 | Di Piazza et al. | Sat-Only | 26.3 | 34.1 | **1.4** |
 | **CAEVL (Ours)** | **Sat-Only** | **49.7** | 82.8 | **1.4** |
 
 ---
 
-## 📦 Dataset
+## 📦 ViLD Dataset
 
 We release the **ViLD dataset**, designed for UAV-to-satellite matching and geo-localization tasks.
 
