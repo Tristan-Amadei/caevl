@@ -3,6 +3,7 @@ seed: 42
 
 architecture:
   device: 'cuda'
+  dir_model: 'AutoEncoder'
   backbone: ''
   invariance_coeff: 25
   std_coeff: 25

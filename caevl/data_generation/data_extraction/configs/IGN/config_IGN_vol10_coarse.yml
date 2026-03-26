@@ -1,0 +1,52 @@
+path_search_zone_points: './data/tiling/tiling_vol10_1400_5_50.npy'
+
+FrameGrabbers:
+  FrameGrabber_0: 
+  # year 2023 - 2021
+    path_0: 'OHR_RVB_0M20_JP2-E080_LAMB93_D45-2023'
+    path_1: 'OHR_RVB_0M20_JP2-E080_LAMB93_D77-2021'
+  FrameGrabber_1:
+  # years 2020 - 2017
+    path_0: 'OHR_RVB_0M20_JP2-E080_LAMB93_D45-2020'
+    path_1: 'OHR_RVB_0M20_JP2-E080_LAMB93_D77-2017'
+  FrameGrabber_2:
+  # years 2016 - 2014
+    path_0: 'OHR_RVB_0M20_JP2-E080_LAMB93_D45-2016'
+    path_1: 'OHR_RVB_0M20_JP2-E080_LAMB93_D77-2014'
+
+output_dir: './data/IGN/images/vol10_1400_5_50_coarse'
+
+dict_problems_directory: './data/IGN/problems'
+dict_problems_save_name: 'vol10_1400_5_50_coarse.pkl'
+
+dict_coordinates_directory: './data/IGN/coordinates'
+dict_coordinates_save_name: 'vol10_1400_5_50_coarse.pkl'
+
+erase_existing: False
+crop_surplus_margin: False
+
+dimensions:
+  out_w: 512
+  out_h: 512
+  w: null
+  h: null
+  coarse_frequency_sampling: 5
+  coarse_step_x: 50
+  coarse_step_y: 50
+
+data_flight_params:
+  path: 'DAI.csv'
+  name_column_latitude: 'lat_rad'
+  name_column_longitude: 'long_rad'
+  name_column_altitude: 'alt_geoid_m'
+
+search_params:
+  search_width: 1400
+  frequency_sampling_points: 5
+  start_index: 6200
+  stop_index: 64900
+  step_x: 50
+  step_y: 50
+
+camera_depth: 90
+max_workers: 0.5

@@ -113,7 +113,8 @@ class AutoEncoder(torch.nn.Module):
         self.nb_blocks = 5
         if isinstance(self.input_dimensions, int):
             self.input_dimensions = (self.input_dimensions, self.input_dimensions)
-        self.last_feature_size = (self.input_dimensions[0]//2**(self.nb_blocks-1), self.input_dimensions[1]//2**(self.nb_blocks-1))
+        self.last_feature_size = (self.input_dimensions[0] // 2**(self.nb_blocks - 1),
+                                  self.input_dimensions[1] // 2**(self.nb_blocks - 1))
 
         self.scalar_divide_channels_fst_feature_map_for_decoder = scalar_divide_channels_fst_feature_map_for_decoder
         nb_channels_fst_feature_map_decoder = self.nb_channels_fst_feature_map // scalar_divide_channels_fst_feature_map_for_decoder
@@ -159,7 +160,7 @@ class AutoEncoder(torch.nn.Module):
             nn.init.constant_(m.bias, 0)
             nn.init.constant_(m.weight, 1.0)
 
-    def initialize_weights(self):        
+    def initialize_weights(self):
         self.apply(self._init_weights)
 
     def loss_function(self, inputs, outputs, embeddings=None, coordinates=None):

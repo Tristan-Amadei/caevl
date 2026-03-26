@@ -1,0 +1,16 @@
+data_params:
+  path: 'DAI.csv'
+  flight_number: '10'
+  name_column_latitude: 'lat_rad'
+  name_column_longitude: 'long_rad'
+  name_column_caps: 'psi_convZYX_camSSA_rad'
+
+search_params:
+  search_width: 1400
+  frequency_sampling_points: 5
+  start_index: 6200
+  stop_index: 64900
+
+tiling_params:
+  step_x: 50
+  step_y: 50

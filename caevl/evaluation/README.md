@@ -20,4 +20,4 @@ python3 caevl/evaluation/eval.py \
 ```
 
 This will create a log file in logs/log_dir. You can add --save_predictions to save the predictions, allowing you to visualize and analyze them afterwards.<br>
-The --database_coords_path and --queries_coords_path parameters are paths to the dictionaries that contain the coordinates of the database and query images. They need to have the names of images as keys and the coordinates as values. Otherwise, the coordinates of the images can be stored directly in the filenames, as such @utm
+The --database_coords_path and --queries_coords_path parameters are paths to the dictionaries that contain the coordinates of the database and query images. They need to have the names of images as keys and the coordinates as values. Otherwise, the coordinates of the images can be stored directly in the filenames, as such @utm_east@utm_north@filename

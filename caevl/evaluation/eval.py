@@ -172,13 +172,6 @@ def main(args):
 
     # Divide by num_queries and multiply by 100, so the recalls are in percentages
     recalls = recalls / test_ds.num_queries * 100
-    # recalls_str = ''
-    # for j, positives_per_query__distance in enumerate(test_ds.positive_dist_threshold):
-    #     recalls_str += f'\nRecalls@{positives_per_query__distance}:'
-    #     for i, value in enumerate(args.recall_values):
-    #         recalls_str += f' R@{value}: {recalls[j, i]:.2f}'
-
-    # logger.info(recalls_str)
 
     def compute_top_k_accuracy_n_meters(query_coords, db_coords, predictions, k_values, n_values):
         """
