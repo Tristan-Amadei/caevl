@@ -91,8 +91,8 @@ Hello,
 
 I would like to request access to the ViLD dataset.
 
-Name: [Your Name]
-Affiliation: [Your Institution / Company]
+Name: [Your Name] <br>
+Affiliation: [Your Institution / Company] <br>
 Intended use: [Brief description]
 
 Thank you
