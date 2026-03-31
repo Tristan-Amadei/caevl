@@ -1,5 +1,8 @@
 # [WACV 2026] Beyond Paired Data: Self-Supervised UAV Geo-Localization from Reference Imagery Alone
 
+![positive](assets/query_23509.png)
+![negative](assets/query_9834.png)
+
 **Official repository of the paper**:  
 [*"Beyond Paired Data: Self-Supervised UAV Geo-Localization from Reference Imagery Alone"*](https://arxiv.org/abs/2512.02737) <br>
 Tristan Amadei, Enric Meinhardt-Llopis, Benedicte Bascle, Corentin Abgrall, Gabriele Facciolo  
@@ -64,8 +67,9 @@ We release the **ViLD dataset**, designed for UAV-to-satellite matching and geo-
 - Predefined train/validation/test splits  
 - Tools for visualization and reproducibility  
 
-👉 **Download on Zenodo (https://zenodo.org/records/19223815)**  
-
+👉 **Download on Zenodo (https://zenodo.org/records/19223815)** <br>
+or <br>
+👉 **Download from the [ENS website](https://kiwi.cmla.ens-cachan.fr/index.php/s/PkB9FgzETpA5iMR)**
 
 ---
 
@@ -88,8 +92,8 @@ Hello,
 
 I would like to request access to the ViLD dataset.
 
-Name: [Your Name]
-Affiliation: [Your Institution / Company]
+Name: [Your Name] <br>
+Affiliation: [Your Institution / Company] <br>
 Intended use: [Brief description]
 
 Thank you
