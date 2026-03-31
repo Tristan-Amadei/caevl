@@ -1,8 +1,5 @@
 # [WACV 2026] Beyond Paired Data: Self-Supervised UAV Geo-Localization from Reference Imagery Alone
 
-![positive](assets/query_23509.png)
-![negative](assets/query_9834.png)
-
 **Official repository of the paper**:  
 [*"Beyond Paired Data: Self-Supervised UAV Geo-Localization from Reference Imagery Alone"*](https://arxiv.org/abs/2512.02737) <br>
 Tristan Amadei, Enric Meinhardt-Llopis, Benedicte Bascle, Corentin Abgrall, Gabriele Facciolo  
